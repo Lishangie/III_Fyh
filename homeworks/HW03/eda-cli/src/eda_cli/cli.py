@@ -97,7 +97,6 @@ def report(
     df = _load_csv(Path(path), sep=sep, encoding=encoding)
 
 
-    # 1. Обзор
     summary = summarize_dataset(df)
     summary_df = flatten_summary_for_print(summary)
     missing_df = missing_table(df)
@@ -105,11 +104,9 @@ def report(
     top_cats = top_categories(df)
 
 
-    # 2. Качество в целом
-    quality_flags = compute_quality_flags(summary, missing_df)
+    quality_flags = compute_quality_flags(summary, missing_df, df)
 
 
-    # 3. Сохраняем табличные артефакты
     summary_df.to_csv(out_root / "summary.csv", index=False)
     if not missing_df.empty:
         missing_df.to_csv(out_root / "missing.csv", index=True)
@@ -118,29 +115,25 @@ def report(
     save_top_categories_tables(top_cats, out_root / "top_categories")
 
 
-    # 4. Markdown-отчёт (с учётом новых параметров HW03)
     md_path = out_root / "report.md"
     with md_path.open("w", encoding="utf-8") as f:
-        # === Используем кастомный title из параметра ===
         f.write(f"# {title}\n\n")
         f.write(f"Исходный файл: `{Path(path).name}`\n\n")
         f.write(f"Строк: **{summary.n_rows}**, столбцов: **{summary.n_cols}**\n\n")
 
 
-        # === Настройки проверки качества (HW03) ===
-        f.write("## Настройки проверки качества\n\n")
+        f.write("Настройки проверки качества\n\n")
         f.write(f"- Порог пропусков для \"проблемных\" колонок: **{min_missing_share:.1%}**\n")
         f.write(f"- Максимум гистограмм: **{max_hist_columns}**\n\n")
 
 
-        f.write("## Качество данных (эвристики)\n\n")
+        f.write("Качество данных (эвристики)\n\n")
         f.write(f"- Оценка качества: **{quality_flags['quality_score']:.2f}**\n")
         f.write(f"- Макс. доля пропусков по колонке: **{quality_flags['max_missing_share']:.2%}**\n")
         f.write(f"- Слишком мало строк: **{quality_flags['too_few_rows']}**\n")
         f.write(f"- Слишком много колонок: **{quality_flags['too_many_columns']}**\n")
         f.write(f"- Слишком много пропусков: **{quality_flags['too_many_missing']}**\n")
         
-        # === НОВЫЕ ЭВРИСТИКИ (HW03) ===
         if quality_flags.get("has_constant_columns"):
             const_cols = quality_flags.get("constant_columns", [])
             f.write(f"- ⚠️ **Константные колонки:** {', '.join(f'`{c}`' for c in const_cols)}\n")
@@ -153,13 +146,12 @@ def report(
         f.write("\n")
 
 
-        # === Проблемные колонки по пропускам (HW03) ===
         problematic_cols = [
             c for c in df.columns 
             if df[c].isnull().mean() >= min_missing_share
         ]
         if problematic_cols:
-            f.write("### Проблемные колонки (по пропускам)\n\n")
+            f.write("Проблемные колонки (по пропускам)\n\n")
             f.write(f"Колонки с долей пропусков >= {min_missing_share:.1%}:\n\n")
             for col in problematic_cols:
                 missing_pct = df[col].isnull().mean() * 100
@@ -167,36 +159,35 @@ def report(
             f.write("\n")
 
 
-        f.write("## Колонки\n\n")
+        f.write("Колонки\n\n")
         f.write("См. файл `summary.csv`.\n\n")
 
 
-        f.write("## Пропуски\n\n")
+        f.write("Пропуски\n\n")
         if missing_df.empty:
             f.write("Пропусков нет или датасет пуст.\n\n")
         else:
             f.write("См. файлы `missing.csv` и `missing_matrix.png`.\n\n")
 
 
-        f.write("## Корреляция числовых признаков\n\n")
+        f.write("Корреляция числовых признаков\n\n")
         if corr_df.empty:
             f.write("Недостаточно числовых колонок для корреляции.\n\n")
         else:
             f.write("См. `correlation.csv` и `correlation_heatmap.png`.\n\n")
 
 
-        f.write("## Категориальные признаки\n\n")
+        f.write("Категориальные признаки\n\n")
         if not top_cats:
             f.write("Категориальные/строковые признаки не найдены.\n\n")
         else:
             f.write("См. файлы в папке `top_categories/`.\n\n")
 
 
-        f.write("## Гистограммы числовых колонок\n\n")
+        f.write("Гистограммы числовых колонок\n\n")
         f.write("См. файлы `hist_*.png`.\n")
 
 
-    # 5. Картинки
     plot_histograms_per_column(df, out_root, max_columns=max_hist_columns)
     plot_missing_matrix(df, out_root / "missing_matrix.png")
     plot_correlation_heatmap(df, out_root / "correlation_heatmap.png")
