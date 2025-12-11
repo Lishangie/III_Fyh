@@ -65,7 +65,6 @@ def summarize_dataset(
         missing_share = float(missing / n_rows) if n_rows > 0 else 0.0
         unique = int(s.nunique(dropna=True))
 
-        # Примерные значения выводим как строки
         examples = (
             s.dropna().astype(str).unique()[:example_values_per_column].tolist()
             if non_null > 0
@@ -170,7 +169,11 @@ def top_categories(
     return result
 
 
-def compute_quality_flags(summary: DatasetSummary, missing_df: pd.DataFrame) -> Dict[str, Any]:
+def compute_quality_flags(
+    summary: DatasetSummary, 
+    missing_df: pd.DataFrame,
+    df: Optional[pd.DataFrame] = None
+) -> Dict[str, Any]:
     """
     Простейшие эвристики «качества» данных:
     - слишком много пропусков;
@@ -185,12 +188,35 @@ def compute_quality_flags(summary: DatasetSummary, missing_df: pd.DataFrame) -> 
     flags["max_missing_share"] = max_missing_share
     flags["too_many_missing"] = max_missing_share > 0.5
 
-    # Простейший «скор» качества
+    constant_columns = []
+    for col in summary.columns:
+        if col.unique == 1 and col.non_null > 0:
+            constant_columns.append(col.name)
+    flags["has_constant_columns"] = len(constant_columns) > 0
+    flags["constant_columns"] = constant_columns
+
+    zero_threshold = 0.6
+    zero_heavy_columns = []
+    if df is not None:
+        for col in summary.columns:
+            if col.is_numeric and col.non_null > 0:
+                zero_count = (df[col.name] == 0).sum()
+                zero_share = zero_count / col.non_null
+                if zero_share >= zero_threshold:
+                    zero_heavy_columns.append(col.name)
+    flags["has_many_zero_values"] = len(zero_heavy_columns) > 0
+    flags["zero_heavy_columns"] = zero_heavy_columns
+    flags["zero_threshold_used"] = zero_threshold
+
     score = 1.0
-    score -= max_missing_share  # чем больше пропусков, тем хуже
+    score -= max_missing_share
     if summary.n_rows < 100:
         score -= 0.2
     if summary.n_cols > 100:
+        score -= 0.1
+    if flags["has_constant_columns"]:
+        score -= 0.15
+    if flags["has_many_zero_values"]:
         score -= 0.1
 
     score = max(0.0, min(1.0, score))
