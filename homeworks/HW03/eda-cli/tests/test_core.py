@@ -51,7 +51,6 @@ def test_missing_table_and_quality_flags():
 def test_correlation_and_top_categories():
     df = _sample_df()
     corr = correlation_matrix(df)
-    # корреляция между age и height существует
     assert "age" in corr.columns or corr.empty is False
 
     top_cats = top_categories(df, max_columns=5, top_k=2)
@@ -59,3 +58,31 @@ def test_correlation_and_top_categories():
     city_table = top_cats["city"]
     assert "value" in city_table.columns
     assert len(city_table) <= 2
+
+
+def test_constant_columns():
+    df = pd.DataFrame({
+        "const": [5, 5, 5, 5],
+        "normal": [1, 2, 3, 4],
+    })
+    
+    summary = summarize_dataset(df)
+    missing_df = missing_table(df)
+    flags = compute_quality_flags(summary, missing_df, df)
+    
+    assert flags["has_constant_columns"] is True
+    assert "const" in flags["constant_columns"]
+
+
+def test_zero_columns():
+    df = pd.DataFrame({
+        "zeros": [0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+        "normal": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    })
+    
+    summary = summarize_dataset(df)
+    missing_df = missing_table(df)
+    flags = compute_quality_flags(summary, missing_df, df)
+    
+    assert flags["has_many_zero_values"] is True
+    assert "zeros" in flags["zero_heavy_columns"]
