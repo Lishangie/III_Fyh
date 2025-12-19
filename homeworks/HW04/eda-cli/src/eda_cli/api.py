@@ -12,6 +12,7 @@ import time
 from typing import Any, Dict
 
 from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 import pandas as pd
 
@@ -72,9 +73,15 @@ def _read_csv_from_upload(file: UploadFile) -> pd.DataFrame:
 # Эндпоинты
 # ============================================================================
 
+@app.get("/")
+def root():
+    """Редирект на интерактивную документацию."""
+    return RedirectResponse(url="/docs")
+
+
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    """ProbeExecution статуса сервиса."""
+    """Проверка статуса сервиса."""
     return HealthResponse(
         status="healthy",
         message="EDA Quality Service is running",
@@ -145,7 +152,7 @@ async def quality_from_csv(file: UploadFile = File(...)) -> QualityResponse:
 @app.post("/quality-flags-from-csv", response_model=QualityFlagsResponse)
 async def quality_flags_from_csv(file: UploadFile = File(...)) -> QualityFlagsResponse:
     """
-    HW04: Эндпоинт для олучения ПОЛНОГО набора флагов качества.
+    HW04: Эндпоинт для получения ПОЛНОГО набора флагов качества.
     
     Ответ:
     {
