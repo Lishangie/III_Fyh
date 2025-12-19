@@ -1,84 +1,60 @@
 # HW04 - HTTP-сервис качества датасетов
 
-**Студент:** Фех Алексей Александрович
-**Группа:** ИМБО-02-24
-**GitHub:** @Lishangie
+Студент: Фех Алексей Александрович  
+Группа: ИМБО-02-24
 
 ---
 
-## Решение
+## Что лежит в HW04
 
-### Структура проекта
-
-Проект расположен в `homeworks/HW04/eda-cli/`:
+Проект в `homeworks/HW04/eda-cli/`.
 
 ```
 eda-cli/
-├── pyproject.toml
-├── README.md
-├── .gitignore
-├── .python-version
-├── src/eda_cli/
-│   ├── __init__.py
-│   ├── core.py
-│   ├── cli.py
-│   ├── viz.py
-│   └── api.py
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   └── test_core.py
-└── data/
-    └── example.csv
+  pyproject.toml
+  README.md
+  src/eda_cli/
+    __init__.py
+    core.py
+    cli.py
+    viz.py
+    api.py
+  tests/
+    test_core.py
+  data/
+    example.csv
 ```
 
-### Реализованные эндпоинты
+Это копия HW03 с добавленным HTTP-сервисом.
 
-#### 1. GET /health
+---
 
-Проверка статуса сервиса.
+## Эндпоинты
+
+Запуск сервиса:
 
 ```bash
-curl http://localhost:8000/health
+cd homeworks/HW04/eda-cli
+uv sync
+uv run uvicorn eda_cli.api:app --reload --port 8000
 ```
 
-Ответ:
-```json
-{
-  "status": "healthy",
-  "message": "EDA Quality Service is running"
-}
-```
+Дальше:
+- /docs — swagger
+- /health — просто проверка, что живой
+- /quality — берёт n_rows, n_cols, max_missing_share из JSON
+- /quality-from-csv — считает качество прямо из CSV
+- /quality-flags-from-csv — то же, но отдаёт все флаги из HW03
 
-#### 2. POST /quality
-
-Оценка качества данных по JSON параметрам.
-
-```bash
-curl -X POST "http://localhost:8000/quality" \
-  -H "Content-Type: application/json" \
-  -d '{"n_rows": 50, "n_cols": 10, "max_missing_share": 0.6}'
-```
-
-#### 3. POST /quality-from-csv
-
-Оценка качества из CSV-файла.
-
-```bash
-curl -X POST "http://localhost:8000/quality-from-csv" \
-  -F "file=@data/example.csv"
-```
-
-#### 4. POST /quality-flags-from-csv (HW04)
-
-Полный набор флагов качества с использованием доработок из HW03.
+Пример для /quality-flags-from-csv:
 
 ```bash
 curl -X POST "http://localhost:8000/quality-flags-from-csv" \
   -F "file=@data/example.csv"
 ```
 
-Ответ:
+Ответ выглядит примерно так:
+
 ```json
 {
   "flags": {
@@ -87,83 +63,25 @@ curl -X POST "http://localhost:8000/quality-flags-from-csv" \
     "too_many_missing": false,
     "has_constant_columns": false,
     "has_many_zero_values": false,
-    "constant_columns": [],
-    "zero_heavy_columns": [],
     "max_missing_share": 0.04,
     "quality_score": 0.96
   },
-  "latency_ms": 12.45
+  "latency_ms": 12.4
 }
 ```
 
----
-
-## Ключевые моменты
-
-### Зависимости
-
-Добавлены в pyproject.toml:
-- fastapi>=0.100.0
-- uvicorn[standard]>=0.23.0
-- python-multipart>=0.0.6
-
-### Собственный эндпоинт
-
-POST /quality-flags-from-csv реализует Вариант A из задания:
-
-- Принимает CSV-файл
-- Вычисляет полный набор флагов:
-  - too_few_rows, too_many_columns, too_many_missing
-  - has_constant_columns (HW03)
-  - has_many_zero_values (HW03)
-  - quality_score
-- Возвращает весь словарь флагов
-
-### Использование HW03
-
-Эндпоинт вызывает compute_quality_flags из core.py, которая содержит все эвристики из HW03.
+Внутри вызывается `summarize_dataset`, `missing_table` и `compute_quality_flags` из core.py, как в HW03.
 
 ---
 
-## Запуск
+## Что сделано по заданию
 
-### Установка
+- HW04 лежит в отдельной папке, структура как в методичке
+- fastapi, uvicorn и python-multipart добавлены в pyproject.toml
+- api.py подключает функции из core.py
+- базовые эндпоинты из семинара есть
+- свой эндпоинт `/quality-flags-from-csv` завязан на эвристики HW03
+- флаги типа `has_constant_columns` и `has_many_zero_values` попадают в ответ
+- тесты на ядро те же, что и в HW03, проходят
 
-```bash
-cd homeworks/HW04/eda-cli
-uv sync
-```
-
-### CLI
-
-```bash
-uv run eda-cli overview data/example.csv
-uv run eda-cli report data/example.csv --out-dir reports_example
-```
-
-### HTTP-сервис
-
-```bash
-uv run uvicorn eda_cli.api:app --reload --port 8000
-```
-
-Откройте http://localhost:8000/docs для интерактивной документации.
-
-### Тесты
-
-```bash
-uv run pytest -q
-```
-
----
-
-## Проверка требований
-
-1. Структура HW04 соответствует требованиям (pyproject.toml, src/, api.py)
-2. HTTP-сервис запускается и работает
-3. Реализованы все требуемые эндпоинты
-4. Собственный эндпоинт использует доработки из HW03
-5. Полный набор флагов возвращается в JSON
-6. Тесты проходят
-
-Статус: Готово
+По сути, HW03 обёрнут в небольшой HTTP-сервис.
