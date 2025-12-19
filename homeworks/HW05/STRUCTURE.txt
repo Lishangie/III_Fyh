@@ -1,0 +1,24 @@
+HW05/
+├── README.md                    # Основное описание
+├── QUICKSTART.md                # Быстрый старт
+├── REQUIREMENTS.md              # Чек-лист требований
+├── STRUCTURE.txt                # Этот файл
+├── requirements.txt             # Python зависимости
+├── config.json                  # Конфигурация моделей
+├── .gitignore                   # Исключения из гита
+│
+├── Ноутбуки:
+├── notebook.ipynb               # Основной анализ (EDA + модели)
+├── advanced_analysis.ipynb      # Расширенный анализ
+│
+├── Python модули:
+├── models.py                    # Классы ML моделей
+├── utils.py                     # Вспомогательные функции
+├── main.py                      # Скрипт выполнения
+│
+├── Скрипты подготовки:
+├── prepare_data.py              # Загрузка датасета
+├── generate_sample_data.py      # Генератор данных
+│
+└── Данные:
+    └── data.csv                 # Датасет (структура)
