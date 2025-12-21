@@ -65,6 +65,7 @@ def summarize_dataset(
         missing_share = float(missing / n_rows) if n_rows > 0 else 0.0
         unique = int(s.nunique(dropna=True))
 
+        # Примерные значения выводим как строки
         examples = (
             s.dropna().astype(str).unique()[:example_values_per_column].tolist()
             if non_null > 0
@@ -169,11 +170,9 @@ def top_categories(
     return result
 
 
-def compute_quality_flags(
-    summary: DatasetSummary, 
-    missing_df: pd.DataFrame,
-    df: Optional[pd.DataFrame] = None
-) -> Dict[str, Any]:
+def compute_quality_flags(summary: DatasetSummary, 
+                          missing_df: pd.DataFrame, 
+                          df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     """
     Простейшие эвристики «качества» данных:
     - слишком много пропусков;
@@ -187,6 +186,7 @@ def compute_quality_flags(
     max_missing_share = float(missing_df["missing_share"].max()) if not missing_df.empty else 0.0
     flags["max_missing_share"] = max_missing_share
     flags["too_many_missing"] = max_missing_share > 0.5
+
 
     constant_columns = []
     for col in summary.columns:
@@ -208,8 +208,12 @@ def compute_quality_flags(
     flags["zero_heavy_columns"] = zero_heavy_columns
     flags["zero_threshold_used"] = zero_threshold
 
+
+
+
+    # Простейший «скор» качества
     score = 1.0
-    score -= max_missing_share
+    score -= max_missing_share  # чем больше пропусков, тем хуже
     if summary.n_rows < 100:
         score -= 0.2
     if summary.n_cols > 100:

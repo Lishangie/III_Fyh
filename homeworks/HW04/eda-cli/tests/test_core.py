@@ -51,6 +51,7 @@ def test_missing_table_and_quality_flags():
 def test_correlation_and_top_categories():
     df = _sample_df()
     corr = correlation_matrix(df)
+    # корреляция между age и height существует
     assert "age" in corr.columns or corr.empty is False
 
     top_cats = top_categories(df, max_columns=5, top_k=2)
@@ -60,6 +61,7 @@ def test_correlation_and_top_categories():
     assert len(city_table) <= 2
 
 
+#Новые тесты для двух новых эвристик качества
 def test_constant_columns():
     df = pd.DataFrame({
         "const": [5, 5, 5, 5],
