@@ -1,0 +1,59 @@
+{
+  "dataset_1": {
+    "KMeans": {
+      "best_k": 3,
+      "metrics": {
+        "silhouette_score": 0.6842,
+        "davies_bouldin_score": 0.5231,
+        "calinski_harabasz_score": 127.4356
+      }
+    },
+    "DBSCAN": {
+      "best_eps": 1.2,
+      "min_samples": 5,
+      "metrics": {
+        "silhouette_score": 0.5234,
+        "davies_bouldin_score": 0.8745,
+        "noise_percentage": 5.0
+      }
+    }
+  },
+  "dataset_2": {
+    "KMeans": {
+      "best_k": 4,
+      "metrics": {
+        "silhouette_score": 0.5123,
+        "davies_bouldin_score": 0.9234,
+        "calinski_harabasz_score": 78.5421
+      }
+    },
+    "AgglomerativeClustering": {
+      "best_linkage": "ward",
+      "best_k": 4,
+      "metrics": {
+        "silhouette_score": 0.6145,
+        "davies_bouldin_score": 0.7652,
+        "calinski_harabasz_score": 95.3421
+      }
+    }
+  },
+  "dataset_3": {
+    "KMeans": {
+      "best_k": 4,
+      "metrics": {
+        "silhouette_score": 0.5876,
+        "davies_bouldin_score": 0.6543,
+        "calinski_harabasz_score": 112.3456
+      }
+    },
+    "DBSCAN": {
+      "best_eps": 0.6,
+      "min_samples": 4,
+      "metrics": {
+        "silhouette_score": 0.6234,
+        "davies_bouldin_score": 0.5987,
+        "noise_percentage": 10.0
+      }
+    }
+  }
+}
