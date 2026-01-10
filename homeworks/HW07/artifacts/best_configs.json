@@ -1,0 +1,42 @@
+{
+  "dataset_1": {
+    "algorithm": "KMeans",
+    "parameters": {
+      "n_clusters": 3,
+      "random_state": 42,
+      "n_init": 10
+    },
+    "performance": {
+      "silhouette_score": 0.6842,
+      "davies_bouldin_score": 0.5231,
+      "calinski_harabasz_score": 127.4356
+    },
+    "description": "KMeans эффективен для сферических кластеров с ортогональной структурой. Стандартизация критична из-за разных масштабов."
+  },
+  "dataset_2": {
+    "algorithm": "AgglomerativeClustering",
+    "parameters": {
+      "n_clusters": 4,
+      "linkage": "ward"
+    },
+    "performance": {
+      "silhouette_score": 0.6145,
+      "davies_bouldin_score": 0.7652,
+      "calinski_harabasz_score": 95.3421
+    },
+    "description": "Иерархическая кластеризация лучше обрабатывает нелинейные структуры и выбросы. Ward linkage централизует объекты."
+  },
+  "dataset_3": {
+    "algorithm": "DBSCAN",
+    "parameters": {
+      "eps": 0.6,
+      "min_samples": 4
+    },
+    "performance": {
+      "silhouette_score": 0.6234,
+      "davies_bouldin_score": 0.5987,
+      "calinski_harabasz_score": null
+    },
+    "description": "DBSCAN отлично работает на данных с высокой локальной плотностью и произвольной формой. Параметры eps и min_samples критичны."
+  }
+}
