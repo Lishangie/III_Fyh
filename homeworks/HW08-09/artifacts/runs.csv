@@ -1,0 +1,8 @@
+experiment_id,dataset,seed,model_summary,optimizer,lr,momentum,weight_decay,epochs_trained,best_val_accuracy,best_val_loss
+E1,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.0, batchnorm=False",Adam,0.001,0,0,15,0.8933333333333333,0.3156720880270004
+E2,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.3, batchnorm=False",Adam,0.001,0,0,15,0.89375,0.30072511875629426
+E3,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.0, batchnorm=True",Adam,0.001,0,0,15,0.8968333333333334,0.31500829446315765
+E4,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.0, batchnorm=True, early_stopping=5",Adam,0.001,0,0,12,0.8940833333333333,0.30606350894769035
+O1,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.0, batchnorm=True",Adam,0.1,0,0,8,0.8710833333333333,0.37102746895949046
+O2,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.0, batchnorm=True",Adam,1e-05,0,0,8,0.8426666666666667,0.5342595243453979
+O3,FashionMNIST,42,"hidden=[256, 128], activation=ReLU, dropout=0.0, batchnorm=True",SGD,0.01,0.9,0.0001,15,0.8954166666666666,0.298151725490888
